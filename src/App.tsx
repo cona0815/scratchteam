@@ -18,6 +18,7 @@ import { courseData, CourseItem } from "./data";
 import Mermaid from "./components/Mermaid";
 import TeacherPanel from "./components/TeacherPanel";
 import StudentPanel from "./components/StudentPanel";
+import BookmarksMenu from "./components/BookmarksMenu";
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -149,30 +150,7 @@ export default function App() {
             {isStudentLoggedIn ? "學生面板" : "學生登入"}
           </button>
 
-          <a
-            href="https://classroom.google.com/c/ODM5NjI1ODc2NDg3?cjc=2zq3psgj"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 px-4 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm"
-          >
-            <GraduationCap
-              size={18}
-              className="group-hover:-translate-y-0.5 transition-transform"
-            />
-            加入 Google Classroom
-          </a>
-          <a
-            href="https://stuworkupload.netlify.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-md shadow-indigo-200"
-          >
-            <CloudUpload
-              size={18}
-              className="group-hover:-translate-y-0.5 transition-transform"
-            />
-            作業上傳
-          </a>
+          <BookmarksMenu />
         </div>
       </header>
 
@@ -203,7 +181,12 @@ export default function App() {
                     return (
                       <button
                         key={course.id}
-                        onClick={() => setCurrentStep(course.globalIndex)}
+                        onClick={() => {
+                          setCurrentStep(course.globalIndex);
+                          if (viewMode !== "course") {
+                            setViewMode("course");
+                          }
+                        }}
                         className={`group flex items-center text-left p-3.5 rounded-2xl transition-all duration-300 ${
                           isActive
                             ? "bg-indigo-600 text-white shadow-md shadow-indigo-200/50"
