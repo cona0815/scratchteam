@@ -17,7 +17,6 @@ import { initAuth } from "./lib/auth";
 import { courseData, CourseItem } from "./data";
 import Mermaid from "./components/Mermaid";
 import TeacherPanel from "./components/TeacherPanel";
-import StudentPanel from "./components/StudentPanel";
 import BookmarksMenu from "./components/BookmarksMenu";
 
 export default function App() {
@@ -25,14 +24,10 @@ export default function App() {
   const [zoomLevel, setZoomLevel] = useState(100);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // 'course' | 'student' | 'teacher'
-  const [viewMode, setViewMode] = useState<"course" | "student" | "teacher">(
-    "course",
-  );
+  // 'course' | 'teacher'
+  const [viewMode, setViewMode] = useState<"course" | "teacher">("course");
 
   const activeCourse = courseData[currentStep];
-  const loggedInStudentId = localStorage.getItem("studentId");
-  const isStudentLoggedIn = !!loggedInStudentId;
 
   useEffect(() => {
     const unsub = initAuth(
@@ -133,23 +128,6 @@ export default function App() {
             {currentUser && currentUser.email ? "老師面板" : "老師登入"}
           </button>
 
-          <button
-            onClick={() =>
-              setViewMode(viewMode === "student" ? "course" : "student")
-            }
-            className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm ${
-              viewMode === "student" || isStudentLoggedIn
-                ? "bg-emerald-600 text-white hover:bg-emerald-500"
-                : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <UserIcon
-              className="group-hover:-translate-y-0.5 transition-transform"
-              size={18}
-            />
-            {isStudentLoggedIn ? "學生面板" : "學生登入"}
-          </button>
-
           <BookmarksMenu />
         </div>
       </header>
@@ -243,20 +221,6 @@ export default function App() {
                   onBack={() => setViewMode("course")}
                 />
               </motion.div>
-            ) : viewMode === "student" ? (
-              <motion.div
-                key="studentPanel"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
-                className="w-full h-full flex flex-col justify-center py-10"
-              >
-                <StudentPanel
-                  currentUser={currentUser}
-                  onBack={() => setViewMode("course")}
-                />
-              </motion.div>
             ) : (
               <motion.div
                 key={activeCourse.id}
@@ -318,6 +282,39 @@ export default function App() {
                       開啟影片 (從 {Math.floor(activeCourse.startTime / 60)}:
                       {String(activeCourse.startTime % 60).padStart(2, "0")}{" "}
                       開始)
+                    </a>
+                  </motion.div>
+                )}
+
+                {/* External Link Block */}
+                {activeCourse.link && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex flex-col sm:flex-row items-center justify-between bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-6 lg:p-8 border border-blue-100 mb-8 shadow-sm"
+                  >
+                    <div className="flex items-center mb-6 sm:mb-0 w-full sm:w-auto">
+                      <div className="bg-white p-3 rounded-2xl shadow-sm mr-5 text-indigo-600">
+                        <ExternalLink size={32} strokeWidth={2} />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-slate-900 text-xl mb-1">
+                          參考網站
+                        </h4>
+                        <p className="text-sm font-medium text-slate-600">
+                          點擊按鈕開啟相關的外部教學網站
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href={activeCourse.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3.5 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
+                    >
+                      <ExternalLink size={20} />
+                      開啟網站
                     </a>
                   </motion.div>
                 )}
