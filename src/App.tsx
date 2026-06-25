@@ -27,6 +27,12 @@ export default function App() {
   // 'course' | 'teacher'
   const [viewMode, setViewMode] = useState<"course" | "teacher">("course");
 
+  const [studentId, setStudentId] = useState<string | null>(
+    localStorage.getItem("studentId"),
+  );
+  const [showStudentLogin, setShowStudentLogin] = useState(false);
+  const [studentInput, setStudentInput] = useState("");
+
   const activeCourse = courseData[currentStep];
 
   useEffect(() => {
@@ -127,6 +133,33 @@ export default function App() {
             />
             {currentUser && currentUser.email ? "老師面板" : "老師登入"}
           </button>
+
+          {studentId ? (
+            <button
+              onClick={() => {
+                localStorage.removeItem("studentId");
+                setStudentId(null);
+              }}
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm bg-emerald-600 text-white hover:bg-emerald-500"
+            >
+              <UserIcon
+                className="group-hover:-translate-y-0.5 transition-transform"
+                size={18}
+              />
+              {studentId} 登出
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowStudentLogin(true)}
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+            >
+              <UserIcon
+                className="group-hover:-translate-y-0.5 transition-transform"
+                size={18}
+              />
+              學生登入
+            </button>
+          )}
 
           <BookmarksMenu />
         </div>
@@ -466,6 +499,72 @@ export default function App() {
           </AnimatePresence>
         </div>
       </div>
+      {/* Student Login Modal */}
+      <AnimatePresence>
+        {showStudentLogin && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl"
+            >
+              <h2 className="text-2xl font-extrabold text-slate-800 mb-2">
+                學生登入
+              </h2>
+              <p className="text-sm font-medium text-slate-500 mb-6">
+                請輸入班級加座號 例40130
+              </p>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (studentInput.trim()) {
+                    setStudentId(studentInput.trim());
+                    localStorage.setItem("studentId", studentInput.trim());
+                    setShowStudentLogin(false);
+                    setStudentInput("");
+                  }
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="輸入班級座號 (例: 40130)"
+                  value={studentInput}
+                  onChange={(e) => setStudentInput(e.target.value)}
+                  className="w-full text-lg px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all font-bold text-slate-700 mb-6"
+                  autoFocus
+                />
+
+                <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowStudentLogin(false);
+                      setStudentInput("");
+                    }}
+                    className="px-6 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!studentInput.trim()}
+                    className="px-6 py-2.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                  >
+                    登入
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
